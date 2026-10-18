@@ -1,0 +1,58 @@
+# Drill 1: Create a governed product metafield definition.
+mutation CreateComplianceDefinition($definition: MetafieldDefinitionInput!) {
+  metafieldDefinitionCreate(definition: $definition) {
+    createdDefinition { id namespace key type { name } }
+    userErrors { field message code }
+  }
+}
+
+# Variables:
+# {
+#   "definition": {
+#     "name": "Case discount eligible",
+#     "namespace": "compliance",
+#     "key": "case_discount_eligible",
+#     "description": "Whether this SKU participates in the case discount function",
+#     "type": "boolean",
+#     "ownerType": "PRODUCT"
+#   }
+# }
+
+# Drill 2: Write product metafields and always inspect userErrors.
+mutation SetProductMetafields($metafields: [MetafieldsSetInput!]!) {
+  metafieldsSet(metafields: $metafields) {
+    metafields { id namespace key value }
+    userErrors { field message code }
+  }
+}
+
+# Drill 3: Read orders incrementally for reconciliation, not as a webhook replacement.
+query OrdersForReconciliation($query: String!, $cursor: String) {
+  orders(first: 50, after: $cursor, query: $query, sortKey: UPDATED_AT) {
+    nodes {
+      id
+      name
+      updatedAt
+      displayFinancialStatus
+      currentTotalPriceSet { shopMoney { amount currencyCode } }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}
+
+# Drill 4: Storefront Cart API — create a cart and return the hosted checkout URL.
+mutation CreateCart($input: CartInput!) {
+  cartCreate(input: $input) {
+    cart {
+      id
+      checkoutUrl
+      lines(first: 10) {
+        nodes { id quantity merchandise { ... on ProductVariant { id title } } }
+      }
+      cost { subtotalAmount { amount currencyCode } }
+    }
+    userErrors { field message code }
+    warnings { code message }
+  }
+}
+

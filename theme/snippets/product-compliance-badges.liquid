@@ -1,0 +1,25 @@
+{% comment %}
+  Render governed product facts. Content is per-store data; the snippet is shared code.
+  Namespace every field and fail quietly when a brand has not populated a value.
+{% endcomment %}
+
+{% liquid
+  assign bottle_size = product.metafields.compliance.bottle_size_ml.value
+  assign alcohol_percent = product.metafields.compliance.alcohol_percent.value
+  assign case_eligible = product.metafields.compliance.case_discount_eligible.value
+%}
+
+{% if bottle_size != blank or alcohol_percent != blank or case_eligible %}
+  <dl class="product-compliance" aria-label="Product details">
+    {% if bottle_size != blank %}
+      <div><dt>Size</dt><dd>{{ bottle_size | escape }} mL</dd></div>
+    {% endif %}
+    {% if alcohol_percent != blank %}
+      <div><dt>Alcohol</dt><dd>{{ alcohol_percent | escape }}%</dd></div>
+    {% endif %}
+    {% if case_eligible %}
+      <div><dt>Offer</dt><dd>Eligible for case pricing</dd></div>
+    {% endif %}
+  </dl>
+{% endif %}
+

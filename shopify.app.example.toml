@@ -1,0 +1,11 @@
+name = "cellar-stack"
+client_id = "replace-in-dev-dashboard"
+application_url = "https://app.example.test"
+
+[webhooks]
+api_version = "2026-10"
+
+[[webhooks.subscriptions]]
+topics = ["orders/create"]
+uri = "/webhooks/shopify"
+
